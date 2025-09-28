@@ -57,3 +57,95 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+src/
+├── app/
+│   ├── core/                           # Singleton servisler
+│   │   ├── auth/
+│   │   │   ├── guards/
+│   │   │   ├── interceptors/
+│   │   │   ├── services/
+│   │   │   └── models/
+│   │   ├── error-handling/
+│   │   ├── http/
+│   │   ├── logging/
+│   │   └── core.module.ts
+│   │
+│   ├── shared/                         # Paylaşılan bileşenler
+│   │   ├── components/
+│   │   │   ├── charts/
+│   │   │   ├── data-table/
+│   │   │   ├── dialogs/
+│   │   │   └── layout/
+│   │   ├── directives/
+│   │   ├── pipes/
+│   │   ├── validators/
+│   │   ├── utils/
+│   │   └── shared.module.ts
+│   │
+│   ├── features/                       # Feature modules
+│   │   ├── network-monitoring/
+│   │   │   ├── components/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── charts/
+│   │   │   │   └── topology/
+│   │   │   ├── services/
+│   │   │   │   ├── network-data.service.ts
+│   │   │   │   └── websocket.service.ts
+│   │   │   ├── models/
+│   │   │   │   ├── network-device.model.ts
+│   │   │   │   └── metrics.model.ts
+│   │   │   ├── guards/
+│   │   │   ├── resolvers/
+│   │   │   ├── network-monitoring-routing.module.ts
+│   │   │   └── network-monitoring.module.ts
+│   │   │
+│   │   ├── user-management/
+│   │   │   ├── components/
+│   │   │   ├── services/
+│   │   │   ├── models/
+│   │   │   └── user-management.module.ts
+│   │   │
+│   │   └── device-management/
+│   │       ├── components/
+│   │       ├── services/
+│   │       ├── models/
+│   │       └── device-management.module.ts
+│   │
+│   ├── layout/                         # Layout bileşenleri
+│   │   ├── header/
+│   │   ├── sidebar/
+│   │   ├── footer/
+│   │   └── main-layout/
+│   │
+│   ├── configs/                        # Yapılandırma dosyaları
+│   │   ├── api-endpoints.ts
+│   │   ├── app-settings.ts
+│   │   └── chart-configs.ts
+│   │
+│   ├── app-routing.module.ts
+│   ├── app.component.ts
+│   └── app.module.ts
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   ├── fonts/
+│   └── i18n/
+│
+├── environments/
+│   ├── environment.ts
+│   ├── environment.prod.ts
+│   └── environment.staging.ts
+│
+└── styles/
+    ├── abstracts/
+    │   ├── _variables.scss
+    │   ├── _mixins.scss
+    │   └── _functions.scss
+    ├── base/
+    ├── components/
+    ├── layouts/
+    ├── themes/
+    └── main.scss
