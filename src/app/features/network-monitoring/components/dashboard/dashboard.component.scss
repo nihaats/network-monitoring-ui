@@ -1,0 +1,245 @@
+.dashboard-container {
+  padding: 0;
+}
+
+// Dashboard Header
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+}
+
+// Connection Status Indicator
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  &.websocket {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+
+    .status-indicator {
+      background-color: #28a745;
+    }
+  }
+
+  &.http {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+
+    .status-indicator {
+      background-color: #ffc107;
+    }
+  }
+
+  &.disconnected {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+
+    .status-indicator {
+      background-color: #dc3545;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// Metrics Summary Cards
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+
+  .metric-value {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .metric-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  &:nth-child(1) {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  }
+
+  &:nth-child(2) {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  }
+
+  &:nth-child(3) {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  }
+
+  &:nth-child(4) {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  }
+}
+
+// Charts Grid
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.chart-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e1e8ed;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #ecf0f1;
+    display: flex;
+    align-items: center;
+
+    &::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, #3498db, #e74c3c);
+      margin-right: 0.5rem;
+      border-radius: 2px;
+    }
+  }
+  
+  // Chart container styling
+  div[id$="-chart"] {
+    min-height: 300px;
+  }
+}
+
+// Update Info
+.update-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+  
+  p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+
+  .metrics-summary {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0 0.5rem;
+  }
+  
+  .dashboard-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .chart-card {
+    padding: 1rem;
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
+
+  .metrics-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .metric-card {
+    padding: 1rem;
+
+    .metric-value {
+      font-size: 1.5rem;
+    }
+  }
+}

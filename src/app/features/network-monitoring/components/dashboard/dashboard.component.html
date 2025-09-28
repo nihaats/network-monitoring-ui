@@ -1,0 +1,81 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Network Monitoring Dashboard</h2>
+    <div class="connection-status" [ngClass]="{
+      'websocket': connectionStatus === 'websocket',
+      'http': connectionStatus === 'http',
+      'disconnected': connectionStatus === 'disconnected'
+    }">
+      <span class="status-indicator"></span>
+      <span class="status-text">
+        {{ connectionStatus === 'websocket' ? 'Real-time (WebSocket)' :
+        connectionStatus === 'http' ? 'Polling (HTTP)' : 'Connecting...' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="!currentMetrics">
+    <div class="loading-spinner"></div>
+    <p>Connecting to monitoring system and loading initial data...</p>
+  </div>
+
+  <!-- Metrics Summary Cards -->
+  <div class="metrics-summary" *ngIf="currentMetrics">
+    <div class="metric-card">
+      <h4>IP Packets In</h4>
+      <p class="metric-value">{{(currentMetrics.packets.ipIn / 1000) | number:'1.1-1'}}K</p>
+      <span class="metric-label">packets</span>
+    </div>
+    <div class="metric-card">
+      <h4>IP Packets Out</h4>
+      <p class="metric-value">{{(currentMetrics.packets.ipOut / 1000) | number:'1.1-1'}}K</p>
+      <span class="metric-label">packets</span>
+    </div>
+    <div class="metric-card">
+      <h4>TCP Connections</h4>
+      <p class="metric-value">{{currentMetrics.connections.tcp}}</p>
+      <span class="metric-label">active</span>
+    </div>
+    <div class="metric-card">
+      <h4>UDP Datagrams</h4>
+      <p class="metric-value">{{(currentMetrics.connections.udp / 1000) | number:'1.1-1'}}K</p>
+      <span class="metric-label">datagrams</span>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="charts-grid">
+    <!-- IP Packet Chart -->
+    <div class="chart-card">
+      <h3>IP Packet Traffic</h3>
+      <div id="packet-chart"></div>
+    </div>
+
+    <!-- TCP Connections Chart -->
+    <div class="chart-card">
+      <h3>Active TCP Connections</h3>
+      <div id="connection-chart"></div>
+    </div>
+
+    <!-- Protocol Chart -->
+    <div class="chart-card">
+      <h3>Protocol Traffic</h3>
+      <div id="protocol-chart"></div>
+    </div>
+
+    <!-- Device Status -->
+    <div class="chart-card">
+      <h3>Device Status</h3>
+      <div id="status-chart"></div>
+    </div>
+  </div>
+
+  <!-- Last Update Info -->
+  <div class="update-info" *ngIf="currentMetrics">
+    <p>
+      Last updated: {{currentMetrics.lastUpdate | date:'medium'}} |
+      Source: {{currentMetrics.source | titlecase}}
+    </p>
+  </div>
+</div>
