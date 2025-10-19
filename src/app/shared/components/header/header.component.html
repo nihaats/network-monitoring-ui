@@ -1,0 +1,12 @@
+<div class="header-main">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="header-title">
+        <img src="../../../../assets/logo.png" width="140" height="auto" alt="">
+      </div>
+      <div *ngIf="isLoggedIn" class="header-user-info">
+        <button mat-button class="btn" (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
