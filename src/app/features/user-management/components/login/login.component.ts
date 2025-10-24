@@ -4,13 +4,15 @@ import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModu
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { NgSnackbarComponent } from '../../../../design-system/components/ng-snackbar/ng-snackbar.component';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, NgSnackbarComponent, MatButtonModule, MatFormFieldModule, MatInputModule, MatSnackBarModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -44,9 +46,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard']);
         console.log('response: ', response);
       },
-      error: (error) => {
-        console.log('error2: ', error);
-        console.error('Login failed', error);
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
       }
     });
   }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, map, Observable } from 'rxjs';
-import { environment } from '../../../../environments';
+import { environment } from '../../../../environments/environment';
 import { RegisterModel } from '../models/register.model';
 
 @Injectable({
@@ -55,6 +55,18 @@ export class AuthService {
         this.authenticated.set(false);
         console.error('Auth check failed', err);
         return [false];
+      })
+    );
+  }
+
+  getIPAddress(): Observable<{ ipAddress: string }> {
+    return this.http.get<{ ipAddress: string }>(`${this.apiUrl}/auth/ip-address`).pipe(
+      map(response => {
+        return response;
+      }),
+      catchError(err => {
+        console.error('Failed to get IP address', err);
+        throw err;
       })
     );
   }

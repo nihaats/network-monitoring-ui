@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import ApexCharts from 'apexcharts';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../../user-management/services/auth.service';
 import { NetworkMetrics, NetworkMonitoringService } from '../../services/network-monitoring.service';
 import { WebSocketService } from '../../services/websocket.service';
 
@@ -12,10 +13,10 @@ import { WebSocketService } from '../../services/websocket.service';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  private networkService = inject(NetworkMonitoringService);
-  private wsService = inject(WebSocketService);
-  private subscription = new Subscription();
+  private readonly unsubscribe = new Subject<void>();
+  private readonly networkService = inject(NetworkMonitoringService);
+  private readonly wsService = inject(WebSocketService);
+  private readonly authService = inject(AuthService);
 
   // ApexCharts instances
   private packetChart!: ApexCharts;
@@ -26,11 +27,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Data properties
   currentMetrics: NetworkMetrics | null = null;
   connectionStatus: 'websocket' | 'http' | 'disconnected' = 'disconnected';
-
-  constructor() { }
+  ipAddress: string = '';
 
   ngOnInit(): void {
     this.initializeWebSocketAndLoadData();
+    this.authService.getIPAddress().pipe(takeUntil(this.unsubscribe)).subscribe({
+      next: (res) => {
+        this.ipAddress = res.ipAddress;
+      },
+      error: (error) => {
+        console.error('Error fetching IP address:', error);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -41,7 +49,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private initializeWebSocketAndLoadData(): void {
     // Get initial HTTP data first
-    this.networkService.getCurrentMetrics().subscribe({
+    this.networkService.getCurrentMetrics().pipe(takeUntil(this.unsubscribe)).subscribe({
       next: (initialMetrics) => {
         this.currentMetrics = initialMetrics;
         this.connectionStatus = initialMetrics.source;
@@ -53,94 +61,92 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Then start listening for WebSocket events
-    this.subscription.add(
-      this.networkService.getNetworkMetrics().subscribe({
-        next: (metrics) => {
-          this.currentMetrics = metrics;
-          this.connectionStatus = this.wsService.connectionStatus() ? 'websocket' : 'http';
-          this.updateChartsWithRealData(metrics);
+    this.networkService.getNetworkMetrics().pipe(takeUntil(this.unsubscribe)).subscribe({
+      next: (metrics) => {
+        this.currentMetrics = metrics;
+        this.connectionStatus = this.wsService.connectionStatus() ? 'websocket' : 'http';
+        this.updateChartsWithRealData(metrics);
 
-        },
-        error: (error) => {
-          console.error('❌ Error in event stream:', error);
-          this.connectionStatus = 'disconnected';
-        }
-      })
-    );
+      },
+      error: (error) => {
+        console.error('❌ Error in event stream:', error);
+        this.connectionStatus = 'disconnected';
+      }
+    })
   }
 
   private updateChartsWithRealData(metrics: NetworkMetrics): void {
 
     // Force Angular change detection for template updates
-    setTimeout(() => {
-      // IP Packet Gauge Chart güncelle
-      if (this.packetChart) {
-        const ipInK = Math.round(metrics.packets.ipIn / 1000);
-        const ipOutK = Math.round(metrics.packets.ipOut / 1000);
-        const totalK = ipInK + ipOutK;
+    // setTimeout(() => {
+    // IP Packet Gauge Chart güncelle
+    if (this.packetChart) {
+      const ipInK = Math.round(metrics.packets.ipIn / 1000);
+      const ipOutK = Math.round(metrics.packets.ipOut / 1000);
+      const totalK = ipInK + ipOutK;
 
-        // Maksimum değeri belirle (dinamik veya sabit)
-        const maxValue = Math.max(10000, totalK + 1000); // En az 10M, veya mevcut + 1M
+      // Maksimum değeri belirle (dinamik veya sabit)
+      const maxValue = Math.max(10000, totalK + 1000); // En az 10M, veya mevcut + 1M
 
-        // Percentage hesapla
-        const ipInPercentage = Math.round((ipInK / maxValue) * 100);
-        const ipOutPercentage = Math.round((ipOutK / maxValue) * 100);
+      // Percentage hesapla
+      const ipInPercentage = Math.round((ipInK / maxValue) * 100);
+      const ipOutPercentage = Math.round((ipOutK / maxValue) * 100);
 
-        // Gauge chart'u güncelle
-        this.packetChart.updateSeries([ipInPercentage, ipOutPercentage]);
+      // Gauge chart'u güncelle
+      this.packetChart.updateSeries([ipInPercentage, ipOutPercentage]);
 
-        // Custom data labels için chart options'u güncelle
-        this.packetChart.updateOptions({
-          plotOptions: {
-            radialBar: {
-              dataLabels: {
-                value: {
-                  formatter: function (val: number, opts: any) {
-                    const seriesIndex = opts.seriesIndex;
-                    return seriesIndex === 0 ? `${ipInK}K` : `${ipOutK}K`;
-                  }
-                },
-                total: {
-                  formatter: function (w: any) {
-                    return `${totalK}K`;
-                  }
+      // Custom data labels için chart options'u güncelle
+      this.packetChart.updateOptions({
+        plotOptions: {
+          radialBar: {
+            dataLabels: {
+              value: {
+                formatter: function (val: number, opts: any) {
+                  const seriesIndex = opts.seriesIndex;
+                  return seriesIndex === 0 ? `${ipInK}K` : `${ipOutK}K`;
+                }
+              },
+              total: {
+                formatter: function (w: any) {
+                  return `${totalK}K`;
                 }
               }
             }
           }
-        });
-      }
+        }
+      });
+    }
 
-      // TCP Connection Chart güncelle
-      if (this.connectionChart) {
-        this.connectionChart.updateSeries([metrics.connections.tcp]);
-      }
+    // TCP Connection Chart güncelle
+    if (this.connectionChart) {
+      this.connectionChart.updateSeries([metrics.connections.tcp]);
+    }
 
-      // Protocol Chart güncelle
-      if (this.protocolChart) {
-        const udpFormatted = Math.round(metrics.connections.udp / 100);
+    // Protocol Chart güncelle
+    if (this.protocolChart) {
+      const udpFormatted = Math.round(metrics.connections.udp / 100);
 
-        this.protocolChart.updateSeries([
-          {
-            name: 'UDP Datagrams',
-            data: [udpFormatted]
-          },
-          {
-            name: 'ICMP Messages',
-            data: [metrics.packets.icmpIn]
-          }
-        ]);
-      }
+      this.protocolChart.updateSeries([
+        {
+          name: 'UDP Datagrams',
+          data: [udpFormatted]
+        },
+        {
+          name: 'ICMP Messages',
+          data: [metrics.packets.icmpIn]
+        }
+      ]);
+    }
 
-      // Device Status güncelle
-      if (this.statusChart) {
-        this.statusChart.updateSeries([
-          metrics.deviceStatus.online,
-          metrics.deviceStatus.warning,
-          metrics.deviceStatus.offline
-        ]);
-      }
-    }, 0);
+    // Device Status güncelle
+    if (this.statusChart) {
+      this.statusChart.updateSeries([
+        metrics.deviceStatus.online,
+        metrics.deviceStatus.warning,
+        metrics.deviceStatus.offline
+      ]);
+    }
+    // }, 0);
   }
 
   private initializeCharts(): void {
@@ -371,18 +377,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('🧹 Dashboard component destroying - cleaning up resources');
-
     // Unsubscribe from all observables
-    this.subscription.unsubscribe();
+    this.unsubscribe.next();
+    this.unsubscribe.complete();
 
     // Clean up charts
     if (this.packetChart) this.packetChart.destroy();
     if (this.connectionChart) this.connectionChart.destroy();
     if (this.protocolChart) this.protocolChart.destroy();
     if (this.statusChart) this.statusChart.destroy();
-
-    console.log('✅ Dashboard cleanup completed');
   }
 }
 
