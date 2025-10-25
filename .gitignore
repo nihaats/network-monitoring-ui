@@ -69,7 +69,6 @@ desktop.ini
 # -----------------------------
 # NPM ve Yarn
 # -----------------------------
-package-lock.json
 yarn.lock
 .pnpm-debug.log
 
