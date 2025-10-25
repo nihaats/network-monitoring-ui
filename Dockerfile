@@ -1,10 +1,10 @@
 # 1️⃣ Build aşaması
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
 # Önce package dosyalarını kopyala (cache optimizasyonu)
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Sonra kalan dosyaları kopyala
 COPY . .
