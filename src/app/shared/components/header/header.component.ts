@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../features/user-management/services/auth.service';
 
 @Component({
@@ -9,6 +10,7 @@ import { AuthService } from '../../../features/user-management/services/auth.ser
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+  private readonly unsubscribe = new Subject<void>();
   private readonly authService = inject(AuthService);
 
   isLoggedIn: boolean = false;
@@ -23,4 +25,16 @@ export class HeaderComponent {
   logout() {
     this.authService.logout();
   }
+
+  downloadZipFile(): void {
+    this.authService.downloadZip().pipe(takeUntil(this.unsubscribe)).subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "archive.zip";  // İndirilecek dosya adı
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
 }

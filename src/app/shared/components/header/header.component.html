@@ -4,8 +4,15 @@
       <div class="header-title">
         <img src="../../../../assets/logo.png" width="140" height="auto" alt="">
       </div>
-      <div *ngIf="isLoggedIn" class="header-user-info">
-        <button mat-button class="btn" (click)="logout()">Logout</button>
+
+      <div class="d-flex align-items-center gap-4">
+        <div *ngIf="isLoggedIn" class="header-user-info">
+          <button mat-button class="btn" (click)="logout()">Logout</button>
+        </div>
+
+        <div *ngIf="isLoggedIn" class="header-user-info">
+          <button mat-button class="btn" (click)="downloadZipFile()">Download</button>
+        </div>
       </div>
     </div>
   </div>

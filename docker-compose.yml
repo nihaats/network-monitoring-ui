@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build: .
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    external: true

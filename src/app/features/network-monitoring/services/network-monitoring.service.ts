@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { EMPTY, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 import { WebSocketService } from './websocket.service';
 
 // API Response interfaces
@@ -47,16 +48,15 @@ export interface DeviceMetrics {
   providedIn: 'root'
 })
 export class NetworkMonitoringService {
-  private http = inject(HttpClient);
-  private wsService = inject(WebSocketService);
-  private readonly apiUrl = 'http://localhost:8090/api/v1';
+  private readonly http = inject(HttpClient);
+  private readonly wsService = inject(WebSocketService);
+  private readonly apiUrl = environment.apiUrl + '/v1';
 
   // Connection tracking
   private lastWebSocketMessage = 0;
   private readonly WS_TIMEOUT = 10000; // 10 seconds timeout
 
   constructor() {
-    // WebSocket mesajlarını dinle ve timeout kontrolü yap
     this.wsService.messages$.subscribe({
       next: (message) => {
         console.log('📞 WebSocket message received:', message.type);
@@ -73,7 +73,7 @@ export class NetworkMonitoringService {
    * Get latest SNMP data from API (HTTP fallback only)
    */
   getAllMetrics(): Observable<SnmpDataItem[]> {
-    return this.http.get<SnmpDataItem[]>(`${this.apiUrl}/all-metrics`);
+    return this.http.get<SnmpDataItem[]>(`${this.apiUrl}/all-metrics`, { withCredentials: true });
   }
 
   getNetworkMetrics(): Observable<NetworkMetrics> {
@@ -139,7 +139,7 @@ export class NetworkMonitoringService {
         warning: arpEntries === 0 ? 1 : 0,
         offline: 0
       },
-      lastUpdate: data[0]?.timestamp || new Date().toISOString(),
+      lastUpdate: data?.[0]?.timestamp || new Date().toISOString(),
       source: 'http'
     };
   }
@@ -148,7 +148,7 @@ export class NetworkMonitoringService {
    * Get metric value by type
    */
   private getMetricValue(data: SnmpDataItem[], metricType: string): number {
-    const metric = data.find(item => item.metricType === metricType);
+    const metric = data?.find(item => item.metricType === metricType);
     return metric ? parseInt(metric.value) || 0 : 0;
   }
 

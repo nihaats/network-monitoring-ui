@@ -70,4 +70,12 @@ export class AuthService {
       })
     );
   }
+
+  downloadZip(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/v1/download-zip`, {
+      responseType: 'blob', // ZIP indirirken MUST HAVE
+      withCredentials: true
+    });
+  }
+
 }

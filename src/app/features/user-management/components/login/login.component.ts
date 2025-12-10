@@ -43,6 +43,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     };
     this.authService.login(model).pipe(takeUntil(this.unsubscribe)).subscribe({
       next: (response) => {
+        localStorage.setItem('userId', response.userId);
         this.router.navigate(['/dashboard']);
         console.log('response: ', response);
       },
